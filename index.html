@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Shop Sales Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 3px solid #d4af37;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            opacity: 0.95;
+            font-size: 1.2em;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e8e8e8;
+            color: #2c3e50;
+        }
+
+        .tab.active {
+            background: white;
+            color: #d4af37;
+            border-bottom: 3px solid #d4af37;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #d4af37 0%, #aa8b2e 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+            background: linear-gradient(135deg, #e6c144 0%, #c79f3a 100%);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #5a6c7d 0%, #3d4f5d 100%);
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #6b7d8f 0%, #4e6070 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ec7063 0%, #e74c3c 100%);
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        /* Multiple Transactions Styles */
+        .transaction-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .transaction-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .transaction-item:hover {
+            border-color: #d4af37;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1);
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .transaction-number {
+            background: linear-gradient(135deg, #d4af37 0%, #aa8b2e 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .remove-transaction {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .add-transaction-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            margin-top: 10px;
+        }
+
+        .add-transaction-btn:hover {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .category-manager {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .category-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .category-item:hover {
+            border-color: #d4af37;
+            box-shadow: 0 3px 10px rgba(212, 175, 55, 0.15);
+        }
+
+        .category-item button {
+            padding: 5px 10px;
+            font-size: 12px;
+            background: #e74c3c;
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            overflow-x: auto;
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .sales-table table {
+            width: 100%;
+        }
+
+        .sales-table th {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .sales-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sales-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: #d4af37;
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stat-card:nth-child(1) {
+            border-left: 4px solid #d4af37;
+        }
+
+        .stat-card:nth-child(2) {
+            border-left: 4px solid #3498db;
+        }
+
+        .stat-card:nth-child(3) {
+            border-left: 4px solid #27ae60;
+        }
+
+        .stat-card:nth-child(4) {
+            border-left: 4px solid #8e44ad;
+        }
+
+        .stat-card h3 {
+            font-size: 13px;
+            opacity: 0.7;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            background: #EF5350;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        /* Quantity Control Styles */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 4px;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .quantity-control:focus-within {
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        .quantity-control input {
+            border: none;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            width: 60px;
+            padding: 8px 4px;
+            color: #2c3e50;
+        }
+
+        .quantity-control input:focus {
+            box-shadow: none;
+        }
+
+        .quantity-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #d4af37 0%, #aa8b2e 100%);
+            color: white;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            box-shadow: 0 2px 5px rgba(212, 175, 55, 0.2);
+        }
+
+        .quantity-btn:hover {
+            background: linear-gradient(135deg, #e6c144 0%, #c79f3a 100%);
+            transform: scale(1.05);
+            box-shadow: 0 3px 8px rgba(212, 175, 55, 0.3);
+        }
+
+        .quantity-btn:active {
+            transform: scale(0.95);
+        }
+
+        .quantity-btn:disabled {
+            background: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .quantity-btn:disabled:hover {
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 600;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☕ Coffee Shop Sales Tracker</h1>
+            <p>Sistem Pencatatan Penjualan Professional & Elegant</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('input')">📝 Input Transaksi</button>
+            <button class="tab" onclick="showTab('report')">📊 Laporan</button>
+            <button class="tab" onclick="showTab('products')">🛍️ Produk</button>
+            <button class="tab" onclick="showTab('settings')">⚙️ Pengaturan</button>
+        </div>
+
+        <!-- Input Tab -->
+        <div id="inputTab" class="tab-content active">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">📝 Input Transaksi Penjualan</h2>
+            
+            <form id="salesForm">
+                <div class="form-group">
+                    <label>📅 Tanggal</label>
+                    <input type="date" id="saleDate" required>
+                </div>
+
+                <div class="transaction-list" id="transactionList">
+                    <!-- Transaction items will be added here -->
+                </div>
+
+                <button type="button" class="add-transaction-btn" onclick="addTransactionItem()">
+                    ➕ Tambah Transaksi Lain
+                </button>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn-success">💾 Simpan Semua Transaksi</button>
+                    <button type="button" class="btn-secondary" onclick="resetForm()">🔄 Reset</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Report Tab -->
+        <div id="reportTab" class="tab-content">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">📊 Laporan Penjualan</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Omzet</h3>
+                    <div class="value" id="totalOmzet">Rp 0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Item Terjual</h3>
+                    <div class="value" id="totalItems">0 item</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Bagian Saya (75%)</h3>
+                    <div class="value" id="myIncome">Rp 0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Bagi Hasil (25%)</h3>
+                    <div class="value" id="shareIncome">Rp 0</div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">🔍 Filter Periode</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Periode Keuangan</label>
+                        <select id="financialPeriod" onchange="filterSales()">
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Periode Detail</label>
+                        <select id="filterPeriod" onchange="filterSales()">
+                            <option value="today">Hari Ini</option>
+                            <option value="week">7 Hari Terakhir</option>
+                            <option value="month">30 Hari Terakhir</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Acuan</label>
+                        <input type="date" id="reportDate" onchange="filterSales()">
+                    </div>
+                </div>
+                <div class="form-row" style="display: none;" id="customDateGroup">
+                    <div class="form-group">
+                        <label>Dari Tanggal</label>
+                        <input type="date" id="filterDateFrom" onchange="filterSales()">
+                    </div>
+                </div>
+                <div class="form-row" style="display: none;" id="customDateToGroup">
+                    <div class="form-group">
+                        <label>Sampai Tanggal</label>
+                        <input type="date" id="filterDateTo" onchange="filterSales()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="sales-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Nama Produk</th>
+                            <th>Kategori</th>
+                            <th>Jumlah</th>
+                            <th>Harga Satuan</th>
+                            <th>Total</th>
+                            <th>Catatan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <tr>
+                            <td colspan="8" class="empty-state">
+                                <div class="loading">⏳ Memuat data...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="productsTab" class="tab-content">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">🛍️ Daftar Produk</h2>
+            
+            <div class="category-manager">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">🏷️ Kelola Kategori</h3>
+                <div class="form-row">
+                    <input type="text" id="newCategory" placeholder="Nama kategori baru...">
+                    <button onclick="addCategory()" class="btn-success">➕ Tambah Kategori</button>
+                </div>
+                <div class="category-list" id="categoryList"></div>
+            </div>
+
+            <div class="sales-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>Kategori</th>
+                            <th>Harga Terakhir</th>
+                            <th>Total Terjual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr>
+                            <td colspan="4" class="empty-state">
+                                <div class="loading">⏳ Memuat produk...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settingsTab" class="tab-content">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">⚙️ Pengaturan</h2>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #e0e0e0;">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 Bagi Hasil</h3>
+                <p style="margin-bottom: 10px; color: #666;">
+                    Sistem bagi hasil otomatis:
+                </p>
+                <ul style="margin-left: 20px; color: #666;">
+                    <li>Bagian Anda: <strong style="color: #27ae60;">75%</strong> dari total omzet</li>
+                    <li>Bagi Hasil: <strong style="color: #3498db;">25%</strong> dari total omzet</li>
+                </ul>
+            </div>
+
+            <div style="background: #fff5f5; padding: 20px; border-radius: 12px; border: 2px solid #e74c3c;">
+                <h3 style="color: #c0392b; margin-bottom: 15px;">⚠️ Zona Bahaya</h3>
+                <p style="margin-bottom: 15px; color: #666;">
+                    Hati-hati! Tindakan di bawah ini tidak dapat dibatalkan.
+                </p>
+                <button onclick="clearAllData()" class="btn-danger">
+                    🗑️ Hapus Semua Data
+                </button>
+            </div>
+
+            <div style="background: #f0f8ff; padding: 20px; border-radius: 12px; margin-top: 20px; border: 2px solid #3498db;">
+                <h3 style="color: #2980b9; margin-bottom: 15px;">ℹ️ Informasi Aplikasi</h3>
+                <p style="color: #666; line-height: 1.8;">
+                    <strong>Coffee Shop Sales Tracker v2.0</strong><br>
+                    Sistem pencatatan penjualan dengan Firestore Database<br>
+                    Data tersimpan secara real-time dan aman di cloud
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Edit Transaksi</h2>
+                <button class="close-btn" onclick="closeEditModal()">✕</button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="date" id="editDate" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nama Produk</label>
+                        <input type="text" id="editProductName" required list="editProductSuggestions">
+                        <datalist id="editProductSuggestions"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori</label>
+                        <select id="editProductType" required></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Jumlah</label>
+                        <div class="quantity-control">
+                            <button type="button" class="quantity-btn" onclick="decrementEditQuantity()">−</button>
+                            <input type="number" id="editQuantity" min="1" value="1" required readonly>
+                            <button type="button" class="quantity-btn" onclick="incrementEditQuantity()">+</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan</label>
+                        <input type="number" id="editPrice" min="0" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Catatan (Optional)</label>
+                    <textarea id="editNotes"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-success">💾 Update</button>
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        // ====================================
+        // FIREBASE CONFIGURATION
+        // ====================================
+        // TODO: Replace with your Firebase config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ====================================
+        // GLOBAL VARIABLES
+        // ====================================
+        let sales = [];
+        let products = [];
+        let categories = ['Minuman', 'Makanan', 'Snack'];
+        let transactionCount = 1;
+        let currentPeriod = 'daily';
+
+        // ====================================
+        // FIRESTORE FUNCTIONS
+        // ====================================
+        
+        // Load all data from Firestore
+        async function loadDataFromFirestore() {
+            try {
+                // Load sales
+                const salesQuery = query(collection(db, 'sales'), orderBy('date', 'desc'));
+                const salesSnapshot = await getDocs(salesQuery);
+                sales = salesSnapshot.docs.map(doc => ({
+                    firestoreId: doc.id,
+                    ...doc.data()
+                }));
+
+                // Load products
+                const productsSnapshot = await getDocs(collection(db, 'products'));
+                products = productsSnapshot.docs.map(doc => ({
+                    firestoreId: doc.id,
+                    ...doc.data()
+                }));
+
+                // Load categories
+                const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+                if (categoriesSnapshot.docs.length > 0) {
+                    categories = categoriesSnapshot.docs[0].data().list || categories;
+                }
+
+                console.log('✅ Data loaded from Firestore');
+                filterSales();
+                displayProducts();
+                displayCategories();
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                alert('Gagal memuat data dari database. Periksa koneksi internet Anda.');
+            }
+        }
+
+        // Save sale to Firestore
+        async function saveSaleToFirestore(saleData) {
+            try {
+                const docRef = await addDoc(collection(db, 'sales'), saleData);
+                return docRef.id;
+            } catch (error) {
+                console.error('❌ Error saving sale:', error);
+                throw error;
+            }
+        }
+
+        // Update sale in Firestore
+        async function updateSaleInFirestore(firestoreId, saleData) {
+            try {
+                const saleRef = doc(db, 'sales', firestoreId);
+                await updateDoc(saleRef, saleData);
+            } catch (error) {
+                console.error('❌ Error updating sale:', error);
+                throw error;
+            }
+        }
+
+        // Delete sale from Firestore
+        async function deleteSaleFromFirestore(firestoreId) {
+            try {
+                await deleteDoc(doc(db, 'sales', firestoreId));
+            } catch (error) {
+                console.error('❌ Error deleting sale:', error);
+                throw error;
+            }
+        }
+
+        // Save product to Firestore
+        async function saveProductToFirestore(productData) {
+            try {
+                // Check if product exists
+                const existingProduct = products.find(p => 
+                    p.name === productData.name && p.type === productData.type
+                );
+
+                if (existingProduct) {
+                    // Update existing product
+                    const productRef = doc(db, 'products', existingProduct.firestoreId);
+                    await updateDoc(productRef, {
+                        price: productData.price,
+                        totalSold: (existingProduct.totalSold || 0) + (productData.totalSold || 0)
+                    });
+                } else {
+                    // Add new product
+                    await addDoc(collection(db, 'products'), productData);
+                }
+            } catch (error) {
+                console.error('❌ Error saving product:', error);
+            }
+        }
+
+        // Save categories to Firestore
+        async function saveCategoriesToFirestore() {
+            try {
+                const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+                if (categoriesSnapshot.docs.length > 0) {
+                    const categoryRef = doc(db, 'categories', categoriesSnapshot.docs[0].id);
+                    await updateDoc(categoryRef, { list: categories });
+                } else {
+                    await addDoc(collection(db, 'categories'), { list: categories });
+                }
+            } catch (error) {
+                console.error('❌ Error saving categories:', error);
+            }
+        }
+
+        // ====================================
+        // UI FUNCTIONS
+        // ====================================
+
+        // Initialize app
+        window.init = async function() {
+            // Set today's date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('saleDate').value = today;
+            document.getElementById('reportDate').value = today;
+            
+            // Add first transaction item
+            addTransactionItem();
+            
+            // Load data from Firestore
+            await loadDataFromFirestore();
+        }
+
+        // Show tab
+        window.showTab = function(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Add transaction item
+        window.addTransactionItem = function() {
+            const transactionList = document.getElementById('transactionList');
+            const itemNumber = transactionCount++;
+            
+            const transactionItem = document.createElement('div');
+            transactionItem.className = 'transaction-item';
+            transactionItem.id = `transaction-${itemNumber}`;
+            
+            transactionItem.innerHTML = `
+                <div class="transaction-header">
+                    <span class="transaction-number">Transaksi #${itemNumber}</span>
+                    ${itemNumber > 1 ? `<button type="button" class="remove-transaction" onclick="removeTransactionItem(${itemNumber})">❌ Hapus</button>` : ''}
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nama Produk</label>
+                        <input type="text" name="productName[]" required list="productSuggestions-${itemNumber}" 
+                               oninput="updateProductPrice(this, ${itemNumber})">
+                        <datalist id="productSuggestions-${itemNumber}">
+                            ${products.map(p => `<option value="${p.name}">`).join('')}
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori</label>
+                        <select name="productType[]" required id="productType-${itemNumber}">
+                            ${categories.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Jumlah</label>
+                        <div class="quantity-control">
+                            <button type="button" class="quantity-btn" onclick="decrementQuantity(${itemNumber})">−</button>
+                            <input type="number" name="quantity[]" min="1" value="1" required id="quantity-${itemNumber}" readonly>
+                            <button type="button" class="quantity-btn" onclick="incrementQuantity(${itemNumber})">+</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan</label>
+                        <input type="number" name="price[]" min="0" required id="price-${itemNumber}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Catatan (Optional)</label>
+                    <textarea name="notes[]" id="notes-${itemNumber}"></textarea>
+                </div>
+            `;
+            
+            transactionList.appendChild(transactionItem);
+        }
+
+        // Remove transaction item
+        window.removeTransactionItem = function(itemNumber) {
+            const item = document.getElementById(`transaction-${itemNumber}`);
+            if (item) {
+                item.remove();
+            }
+        }
+
+        // Increment quantity
+        window.incrementQuantity = function(itemNumber) {
+            const input = document.getElementById(`quantity-${itemNumber}`);
+            const currentValue = parseInt(input.value) || 1;
+            input.value = currentValue + 1;
+        }
+
+        // Decrement quantity
+        window.decrementQuantity = function(itemNumber) {
+            const input = document.getElementById(`quantity-${itemNumber}`);
+            const currentValue = parseInt(input.value) || 1;
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        }
+
+        // Increment edit quantity
+        window.incrementEditQuantity = function() {
+            const input = document.getElementById('editQuantity');
+            const currentValue = parseInt(input.value) || 1;
+            input.value = currentValue + 1;
+        }
+
+        // Decrement edit quantity
+        window.decrementEditQuantity = function() {
+            const input = document.getElementById('editQuantity');
+            const currentValue = parseInt(input.value) || 1;
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        }
+
+        // Update product price when name is selected
+        window.updateProductPrice = function(input, itemNumber) {
+            const productName = input.value;
+            const product = products.find(p => p.name === productName);
+            
+            if (product) {
+                document.getElementById(`price-${itemNumber}`).value = product.price;
+                document.getElementById(`productType-${itemNumber}`).value = product.type;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('salesForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const date = document.getElementById('saleDate').value;
+            const productNames = document.getElementsByName('productName[]');
+            const productTypes = document.getElementsByName('productType[]');
+            const quantities = document.getElementsByName('quantity[]');
+            const prices = document.getElementsByName('price[]');
+            const notes = document.getElementsByName('notes[]');
+            
+            try {
+                // Show loading
+                showSuccessMessage('⏳ Menyimpan transaksi...');
+                
+                // Save each transaction
+                for (let i = 0; i < productNames.length; i++) {
+                    const saleData = {
+                        date: date,
+                        productName: productNames[i].value,
+                        productType: productTypes[i].value,
+                        quantity: parseInt(quantities[i].value),
+                        price: parseInt(prices[i].value),
+                        notes: notes[i].value,
+                        total: parseInt(quantities[i].value) * parseInt(prices[i].value),
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Save to Firestore
+                    const firestoreId = await saveSaleToFirestore(saleData);
+                    
+                    // Add to local array
+                    sales.unshift({
+                        firestoreId: firestoreId,
+                        ...saleData
+                    });
+                    
+                    // Update product
+                    await saveProductToFirestore({
+                        name: saleData.productName,
+                        type: saleData.productType,
+                        price: saleData.price,
+                        totalSold: saleData.quantity
+                    });
+                }
+                
+                // Reload products
+                const productsSnapshot = await getDocs(collection(db, 'products'));
+                products = productsSnapshot.docs.map(doc => ({
+                    firestoreId: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Update UI
+                filterSales();
+                displayProducts();
+                resetForm();
+                
+                showSuccessMessage('✅ Semua transaksi berhasil disimpan!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Gagal menyimpan transaksi. Silakan coba lagi.');
+            }
+        });
+
+        // Reset form
+        window.resetForm = function() {
+            document.getElementById('salesForm').reset();
+            document.getElementById('transactionList').innerHTML = '';
+            transactionCount = 1;
+            addTransactionItem();
+            document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        // Show success message
+        function showSuccessMessage(message) {
+            const existingMsg = document.querySelector('.success-message');
+            if (existingMsg) existingMsg.remove();
+            
+            const msg = document.createElement('div');
+            msg.className = 'success-message';
+            msg.textContent = message;
+            
+            const form = document.getElementById('salesForm');
+            form.parentNode.insertBefore(msg, form);
+            
+            setTimeout(() => msg.remove(), 3000);
+        }
+
+        // Add category
+        window.addCategory = async function() {
+            const input = document.getElementById('newCategory');
+            const category = input.value.trim();
+            
+            if (category && !categories.includes(category)) {
+                categories.push(category);
+                await saveCategoriesToFirestore();
+                displayCategories();
+                input.value = '';
+                showSuccessMessage('✅ Kategori berhasil ditambahkan!');
+            }
+        }
+
+        // Remove category
+        window.removeCategory = async function(category) {
+            if (confirm(`Hapus kategori "${category}"?`)) {
+                categories = categories.filter(c => c !== category);
+                await saveCategoriesToFirestore();
+                displayCategories();
+                showSuccessMessage('✅ Kategori berhasil dihapus!');
+            }
+        }
+
+        // Display categories
+        function displayCategories() {
+            const categoryList = document.getElementById('categoryList');
+            categoryList.innerHTML = categories.map(cat => `
+                <div class="category-item">
+                    <span>${cat}</span>
+                    <button onclick="removeCategory('${cat}')">❌</button>
+                </div>
+            `).join('');
+            
+            // Update category selects
+            const categorySelects = document.querySelectorAll('select[name="productType[]"], #editProductType');
+            categorySelects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = categories.map(cat => 
+                    `<option value="${cat}" ${cat === currentValue ? 'selected' : ''}>${cat}</option>`
+                ).join('');
+            });
+        }
+
+        // Display products
+        function displayProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            
+            if (products.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            <div>
+                                <p style="font-size: 18px; margin-bottom: 10px;">📭 Belum ada produk</p>
+                                <p>Produk akan muncul otomatis setelah Anda input transaksi</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td><strong>${product.name}</strong></td>
+                    <td>${product.type}</td>
+                    <td>Rp ${product.price.toLocaleString('id-ID')}</td>
+                    <td>${product.totalSold || 0} item</td>
+                </tr>
+            `).join('');
+        }
+
+        // Filter sales
+        window.filterSales = function() {
+            const period = document.getElementById('filterPeriod').value;
+            const financialPeriod = document.getElementById('financialPeriod').value;
+            currentPeriod = financialPeriod;
+            
+            const reportDate = new Date(document.getElementById('reportDate').value);
+            reportDate.setHours(0, 0, 0, 0);
+            
+            let filteredSales = sales;
+            let financialSales = sales;
+            
+            // Show/hide custom date inputs
+            const customDateGroup = document.getElementById('customDateGroup');
+            const customDateToGroup = document.getElementById('customDateToGroup');
+            if (period === 'custom') {
+                customDateGroup.style.display = 'block';
+                customDateToGroup.style.display = 'block';
+            } else {
+                customDateGroup.style.display = 'none';
+                customDateToGroup.style.display = 'none';
+            }
+            
+            // Filter for detail table
+            if (period === 'today') {
+                filteredSales = sales.filter(s => {
+                    const saleDate = new Date(s.date);
+                    saleDate.setHours(0, 0, 0, 0);
+                    return saleDate.getTime() === reportDate.getTime();
+                });
+            } else if (period === 'week') {
+                const weekAgo = new Date(reportDate);
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                filteredSales = sales.filter(s => {
+                    const saleDate = new Date(s.date);
+                    return saleDate >= weekAgo && saleDate <= reportDate;
+                });
+            } else if (period === 'month') {
+                const monthAgo = new Date(reportDate);
+                monthAgo.setMonth(monthAgo.getMonth() - 1);
+                filteredSales = sales.filter(s => {
+                    const saleDate = new Date(s.date);
+                    return saleDate >= monthAgo && saleDate <= reportDate;
+                });
+            } else if (period === 'custom') {
+                const dateFrom = document.getElementById('filterDateFrom').value;
+                const dateTo = document.getElementById('filterDateTo').value;
+                if (dateFrom && dateTo) {
+                    filteredSales = sales.filter(s => s.date >= dateFrom && s.date <= dateTo);
+                }
+            }
+            
+            // Filter for financial cards
+            if (financialPeriod === 'daily') {
+                financialSales = sales.filter(s => {
+                    const saleDate = new Date(s.date);
+                    saleDate.setHours(0, 0, 0, 0);
+                    return saleDate.getTime() === reportDate.getTime();
+                });
+            } else if (financialPeriod === 'weekly') {
+                const startOfWeek = new Date(reportDate);
+                const day = startOfWeek.getDay();
+                const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+                startOfWeek.setDate(diff);
+                startOfWeek.setHours(0, 0, 0, 0);
+                
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(endOfWeek.getDate() + 6);
+                endOfWeek.setHours(23, 59, 59, 999);
+                
+                financialSales = sales.filter(s => {
+                    const saleDate = new Date(s.date);
+                    return saleDate >= startOfWeek && saleDate <= endOfWeek;
+                });
+            } else if (financialPeriod === 'monthly') {
+                const startOfMonth = new Date(reportDate.getFullYear(), reportDate.getMonth(), 1);
+                const endOfMonth = new Date(reportDate.getFullYear(), reportDate.getMonth() + 1, 0);
+                endOfMonth.setHours(23, 59, 59, 999);
+                
+                financialSales = sales.filter(s => {
+                    const saleDate = new Date(s.date);
+                    return saleDate >= startOfMonth && saleDate <= endOfMonth;
+                });
+            }
+            
+            displaySales(filteredSales);
+            displayFinancialReport(financialSales);
+        }
+
+        // Display financial report
+        function displayFinancialReport(salesData) {
+            const totalOmzet = salesData.reduce((sum, sale) => sum + sale.total, 0);
+            const totalItems = salesData.reduce((sum, sale) => sum + sale.quantity, 0);
+            const myIncome = totalOmzet * 0.75;
+            const shareIncome = totalOmzet * 0.25;
+            
+            document.getElementById('totalOmzet').textContent = `Rp ${totalOmzet.toLocaleString('id-ID')}`;
+            document.getElementById('totalItems').textContent = `${totalItems} item`;
+            document.getElementById('myIncome').textContent = `Rp ${Math.round(myIncome).toLocaleString('id-ID')}`;
+            document.getElementById('shareIncome').textContent = `Rp ${Math.round(shareIncome).toLocaleString('id-ID')}`;
+        }
+
+        // Display sales
+        function displaySales(filteredSales) {
+            const tbody = document.getElementById('salesTableBody');
+            tbody.innerHTML = '';
+            
+            if (filteredSales.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <div>
+                                <p style="font-size: 18px; margin-bottom: 10px;">📭 Tidak ada transaksi</p>
+                                <p>Mulai input transaksi untuk melihat laporan</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredSales.forEach(sale => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(sale.date).toLocaleDateString('id-ID')}</td>
+                    <td><strong>${sale.productName}</strong></td>
+                    <td>${sale.productType}</td>
+                    <td>${sale.quantity}</td>
+                    <td>Rp ${sale.price.toLocaleString('id-ID')}</td>
+                    <td><strong style="color: #d4af37;">Rp ${sale.total.toLocaleString('id-ID')}</strong></td>
+                    <td>${sale.notes || '-'}</td>
+                    <td class="actions">
+                        <button class="btn-small" onclick="editSale('${sale.firestoreId}')">✏️</button>
+                        <button class="btn-small btn-danger" onclick="deleteSale('${sale.firestoreId}')">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Edit sale
+        window.editSale = function(firestoreId) {
+            const sale = sales.find(s => s.firestoreId === firestoreId);
+            if (!sale) return;
+            
+            document.getElementById('editId').value = sale.firestoreId;
+            document.getElementById('editDate').value = sale.date;
+            document.getElementById('editProductName').value = sale.productName;
+            document.getElementById('editProductType').value = sale.productType;
+            document.getElementById('editQuantity').value = sale.quantity;
+            document.getElementById('editPrice').value = sale.price;
+            document.getElementById('editNotes').value = sale.notes;
+            
+            // Update product suggestions
+            const datalist = document.getElementById('editProductSuggestions');
+            datalist.innerHTML = products.map(p => `<option value="${p.name}">`).join('');
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // Close edit modal
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // Handle edit form
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const firestoreId = document.getElementById('editId').value;
+            const quantity = parseInt(document.getElementById('editQuantity').value);
+            const price = parseInt(document.getElementById('editPrice').value);
+            
+            const updatedData = {
+                date: document.getElementById('editDate').value,
+                productName: document.getElementById('editProductName').value,
+                productType: document.getElementById('editProductType').value,
+                quantity: quantity,
+                price: price,
+                notes: document.getElementById('editNotes').value,
+                total: quantity * price
+            };
+            
+            try {
+                // Update in Firestore
+                await updateSaleInFirestore(firestoreId, updatedData);
+                
+                // Update local array
+                const index = sales.findIndex(s => s.firestoreId === firestoreId);
+                if (index !== -1) {
+                    sales[index] = {
+                        firestoreId: firestoreId,
+                        ...updatedData
+                    };
+                }
+                
+                // Update product
+                await saveProductToFirestore({
+                    name: updatedData.productName,
+                    type: updatedData.productType,
+                    price: updatedData.price,
+                    totalSold: 0
+                });
+                
+                // Reload products
+                const productsSnapshot = await getDocs(collection(db, 'products'));
+                products = productsSnapshot.docs.map(doc => ({
+                    firestoreId: doc.id,
+                    ...doc.data()
+                }));
+                
+                filterSales();
+                displayProducts();
+                closeEditModal();
+                showSuccessMessage('✅ Transaksi berhasil diupdate!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Gagal update transaksi. Silakan coba lagi.');
+            }
+        });
+
+        // Delete sale
+        window.deleteSale = async function(firestoreId) {
+            if (confirm('Hapus transaksi ini?')) {
+                try {
+                    // Delete from Firestore
+                    await deleteSaleFromFirestore(firestoreId);
+                    
+                    // Remove from local array
+                    sales = sales.filter(s => s.firestoreId !== firestoreId);
+                    
+                    filterSales();
+                    showSuccessMessage('✅ Transaksi berhasil dihapus!');
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Gagal menghapus transaksi. Silakan coba lagi.');
+                }
+            }
+        }
+
+        // Clear all data
+        window.clearAllData = async function() {
+            if (confirm('⚠️ PERINGATAN: Semua data akan dihapus permanen!\n\nApakah Anda yakin?')) {
+                if (confirm('Konfirmasi sekali lagi: Hapus SEMUA data?')) {
+                    try {
+                        // Delete all sales
+                        const salesSnapshot = await getDocs(collection(db, 'sales'));
+                        for (const doc of salesSnapshot.docs) {
+                            await deleteDoc(doc.ref);
+                        }
+                        
+                        // Delete all products
+                        const productsSnapshot = await getDocs(collection(db, 'products'));
+                        for (const doc of productsSnapshot.docs) {
+                            await deleteDoc(doc.ref);
+                        }
+                        
+                        // Reset local data
+                        sales = [];
+                        products = [];
+                        
+                        filterSales();
+                        displayProducts();
+                        showSuccessMessage('✅ Semua data telah dihapus!');
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('❌ Gagal menghapus data. Silakan coba lagi.');
+                    }
+                }
+            }
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
