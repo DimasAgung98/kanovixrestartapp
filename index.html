@@ -527,6 +527,105 @@
             animation: slideIn 0.3s;
         }
 
+        /* Success Modal Styles */
+        .success-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .success-modal.active {
+            display: flex;
+        }
+
+        .success-modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: scaleIn 0.3s;
+            position: relative;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .success-modal-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            animation: bounceIn 0.6s;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .success-modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .success-modal-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .success-modal-btn {
+            background: linear-gradient(135deg, #d4af37 0%, #aa8b2e 100%);
+            color: white;
+            padding: 12px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .success-modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -803,6 +902,18 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div id="successModal" class="success-modal">
+        <div class="success-modal-content">
+            <div class="success-modal-icon">✓</div>
+            <div class="success-modal-title">Berhasil!</div>
+            <div class="success-modal-message" id="successModalMessage">
+                Transaksi berhasil disimpan
+            </div>
+            <button class="success-modal-btn" onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
@@ -813,12 +924,12 @@
         // ====================================
         // TODO: Replace with your Firebase config
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBWiKQ5pCCHig5EwcVoLOzL1d9Hh3oq1tw",
+            authDomain: "kanovixrestart.firebaseapp.com",
+            projectId: "kanovixrestart",
+            storageBucket: "kanovixrestart.firebasestorage.app",
+            messagingSenderId: "274300766986",
+            appId: "1:274300766986:web:6dd377bc5de3da3ca088f3"
         };
 
         // Initialize Firebase
@@ -1080,71 +1191,6 @@
             }
         }
 
-        // Handle form submission
-        document.getElementById('salesForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const date = document.getElementById('saleDate').value;
-            const productNames = document.getElementsByName('productName[]');
-            const productTypes = document.getElementsByName('productType[]');
-            const quantities = document.getElementsByName('quantity[]');
-            const prices = document.getElementsByName('price[]');
-            const notes = document.getElementsByName('notes[]');
-            
-            try {
-                // Show loading
-                showSuccessMessage('⏳ Menyimpan transaksi...');
-                
-                // Save each transaction
-                for (let i = 0; i < productNames.length; i++) {
-                    const saleData = {
-                        date: date,
-                        productName: productNames[i].value,
-                        productType: productTypes[i].value,
-                        quantity: parseInt(quantities[i].value),
-                        price: parseInt(prices[i].value),
-                        notes: notes[i].value,
-                        total: parseInt(quantities[i].value) * parseInt(prices[i].value),
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    // Save to Firestore
-                    const firestoreId = await saveSaleToFirestore(saleData);
-                    
-                    // Add to local array
-                    sales.unshift({
-                        firestoreId: firestoreId,
-                        ...saleData
-                    });
-                    
-                    // Update product
-                    await saveProductToFirestore({
-                        name: saleData.productName,
-                        type: saleData.productType,
-                        price: saleData.price,
-                        totalSold: saleData.quantity
-                    });
-                }
-                
-                // Reload products
-                const productsSnapshot = await getDocs(collection(db, 'products'));
-                products = productsSnapshot.docs.map(doc => ({
-                    firestoreId: doc.id,
-                    ...doc.data()
-                }));
-                
-                // Update UI
-                filterSales();
-                displayProducts();
-                resetForm();
-                
-                showSuccessMessage('✅ Semua transaksi berhasil disimpan!');
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Gagal menyimpan transaksi. Silakan coba lagi.');
-            }
-        });
-
         // Reset form
         window.resetForm = function() {
             document.getElementById('salesForm').reset();
@@ -1169,6 +1215,20 @@
             setTimeout(() => msg.remove(), 3000);
         }
 
+        // Show success modal
+        window.showSuccessModal = function(message, count = 1) {
+            const modal = document.getElementById('successModal');
+            const messageEl = document.getElementById('successModalMessage');
+            messageEl.textContent = message || `${count} transaksi berhasil disimpan ke database!`;
+            modal.classList.add('active');
+        }
+
+        // Close success modal
+        window.closeSuccessModal = function() {
+            const modal = document.getElementById('successModal');
+            modal.classList.remove('active');
+        }
+
         // Add category
         window.addCategory = async function() {
             const input = document.getElementById('newCategory');
@@ -1179,7 +1239,7 @@
                 await saveCategoriesToFirestore();
                 displayCategories();
                 input.value = '';
-                showSuccessMessage('✅ Kategori berhasil ditambahkan!');
+                showSuccessModal('Kategori berhasil ditambahkan!', 1);
             }
         }
 
@@ -1189,7 +1249,7 @@
                 categories = categories.filter(c => c !== category);
                 await saveCategoriesToFirestore();
                 displayCategories();
-                showSuccessMessage('✅ Kategori berhasil dihapus!');
+                showSuccessModal('Kategori berhasil dihapus!', 1);
             }
         }
 
@@ -1455,7 +1515,7 @@
                 filterSales();
                 displayProducts();
                 closeEditModal();
-                showSuccessMessage('✅ Transaksi berhasil diupdate!');
+                showSuccessModal('Transaksi berhasil diupdate!', 1);
             } catch (error) {
                 console.error('Error:', error);
                 alert('❌ Gagal update transaksi. Silakan coba lagi.');
@@ -1473,7 +1533,7 @@
                     sales = sales.filter(s => s.firestoreId !== firestoreId);
                     
                     filterSales();
-                    showSuccessMessage('✅ Transaksi berhasil dihapus!');
+                    showSuccessModal('Transaksi berhasil dihapus!', 1);
                 } catch (error) {
                     console.error('Error:', error);
                     alert('❌ Gagal menghapus transaksi. Silakan coba lagi.');
@@ -1504,7 +1564,7 @@
                         
                         filterSales();
                         displayProducts();
-                        showSuccessMessage('✅ Semua data telah dihapus!');
+                        showSuccessModal('Semua data telah dihapus!', 1);
                     } catch (error) {
                         console.error('Error:', error);
                         alert('❌ Gagal menghapus data. Silakan coba lagi.');
@@ -1515,6 +1575,98 @@
 
         // Initialize on load
         init();
+
+        // ====================================
+        // EVENT LISTENERS (after DOM ready)
+        // ====================================
+
+        // Handle form submission
+        document.getElementById('salesForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const date = document.getElementById('saleDate').value;
+            const productNames = document.getElementsByName('productName[]');
+            const productTypes = document.getElementsByName('productType[]');
+            const quantities = document.getElementsByName('quantity[]');
+            const prices = document.getElementsByName('price[]');
+            const notes = document.getElementsByName('notes[]');
+            
+            // Validation
+            if (productNames.length === 0) {
+                alert('❌ Tidak ada transaksi untuk disimpan!');
+                return;
+            }
+
+            // Validate each transaction
+            for (let i = 0; i < productNames.length; i++) {
+                if (!productNames[i].value.trim()) {
+                    alert(`❌ Transaksi #${i + 1}: Nama produk harus diisi!`);
+                    return;
+                }
+                if (!prices[i].value || parseInt(prices[i].value) <= 0) {
+                    alert(`❌ Transaksi #${i + 1}: Harga harus lebih dari 0!`);
+                    return;
+                }
+            }
+            
+            try {
+                // Show loading
+                showSuccessMessage('⏳ Menyimpan transaksi...');
+                
+                let successCount = 0;
+                
+                // Save each transaction
+                for (let i = 0; i < productNames.length; i++) {
+                    const saleData = {
+                        date: date,
+                        productName: productNames[i].value.trim(),
+                        productType: productTypes[i].value,
+                        quantity: parseInt(quantities[i].value),
+                        price: parseInt(prices[i].value),
+                        notes: notes[i].value.trim(),
+                        total: parseInt(quantities[i].value) * parseInt(prices[i].value),
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Save to Firestore
+                    const firestoreId = await saveSaleToFirestore(saleData);
+                    
+                    // Add to local array
+                    sales.unshift({
+                        firestoreId: firestoreId,
+                        ...saleData
+                    });
+                    
+                    // Update product
+                    await saveProductToFirestore({
+                        name: saleData.productName,
+                        type: saleData.productType,
+                        price: saleData.price,
+                        totalSold: saleData.quantity
+                    });
+
+                    successCount++;
+                }
+                
+                // Reload products
+                const productsSnapshot = await getDocs(collection(db, 'products'));
+                products = productsSnapshot.docs.map(doc => ({
+                    firestoreId: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Update UI
+                filterSales();
+                displayProducts();
+                resetForm();
+                
+                // Show success modal
+                showSuccessModal(`${successCount} transaksi berhasil disimpan ke database!`, successCount);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Gagal menyimpan transaksi: ' + error.message + '\n\nPastikan:\n1. Firebase config sudah benar\n2. Firestore rules sudah di-publish\n3. Koneksi internet stabil');
+            }
+        });
     </script>
 </body>
 </html>
